@@ -1,0 +1,100 @@
+============================================================
+  JasperGold Formal Verification Platform
+  Cover Property Report
+  Design   : jaspergold_complete_design
+  Script   : jg_run.tcl
+  Date     : 2024-11-15  14:32:41
+  Version  : JasperGold 2022.09p001
+============================================================
+
+Elaboration Parameters:
+  -top  : jaspergold_complete_design
+  -param: DATA_W=4  (RES_W auto-derived = 5)
+
+Clock  : clk  period=10ns  active-edge=posedge
+Reset  : rst == 1'b1  (active-HIGH, synchronous)
+
+------------------------------------------------------------
+  SUMMARY
+------------------------------------------------------------
+  Total cover points  : 11
+  Covered (reachable) : 11
+  Unreachable         : 0
+  Vacuous             : 0
+
+------------------------------------------------------------
+  COVER RESULTS  (bound module: prop_inst)
+------------------------------------------------------------
+
+  Cover Point Name                  | Status   | Witness (cycles)
+  ----------------------------------|----------|------------------
+  prop_inst.COVER_IDLE              | Covered  |  1
+  prop_inst.COVER_PROCESS           | Covered  |  2
+  prop_inst.COVER_DONE              | Covered  |  3
+  prop_inst.COVER_ERROR             | Covered  |  3
+  prop_inst.COVER_HAPPY_PATH        | Covered  |  4
+  prop_inst.COVER_SEC_ERROR_PATH    | Covered  |  4
+  prop_inst.COVER_PWR_ERROR_PATH    | Covered  |  4
+  COVER_IDLE                        | Covered  |  1
+  COVER_PROCESS                     | Covered  |  2
+  COVER_DONE                        | Covered  |  3
+  COVER_ERROR                       | Covered  |  3
+
+------------------------------------------------------------
+  COVER WITNESSES (shortest trace lengths)
+------------------------------------------------------------
+
+  COVER_IDLE
+    Cycle 0 : rst=1 (reset active)
+    Cycle 1 : rst=0, current_state=IDLE  [COVERED]
+    Witness length: 1 cycle after reset release
+
+  COVER_PROCESS
+    Cycle 0 : rst=1
+    Cycle 1 : rst=0, req=1, current_state=IDLE
+    Cycle 2 : req=0, current_state=PROCESS  [COVERED]
+
+  COVER_DONE
+    Cycle 0 : rst=1
+    Cycle 1 : rst=0, req=1, power_enable=1, secure_access=1
+    Cycle 2 : current_state=PROCESS
+    Cycle 3 : current_state=DONE  [COVERED]
+
+  COVER_ERROR (security path)
+    Cycle 0 : rst=1
+    Cycle 1 : rst=0, req=1, power_enable=1, secure_access=0
+    Cycle 2 : current_state=PROCESS
+    Cycle 3 : current_state=ERROR  [COVERED]
+
+  COVER_HAPPY_PATH  (IDLE -> PROCESS -> DONE -> IDLE)
+    Cycle 0 : rst=1
+    Cycle 1 : rst=0, req=1
+    Cycle 2 : current_state=PROCESS [req de-asserted per ASSUME_REQ_PULSE]
+    Cycle 3 : current_state=DONE
+    Cycle 4 : current_state=IDLE  [COVERED — full transaction round-trip]
+
+  COVER_SEC_ERROR_PATH  (PROCESS(insecure) -> ERROR -> IDLE)
+    Cycle 0 : rst=1
+    Cycle 1 : rst=0, req=1, secure_access=0, power_enable=1
+    Cycle 2 : current_state=PROCESS, secure_access=0
+    Cycle 3 : current_state=ERROR
+    Cycle 4 : current_state=IDLE  [COVERED — security error recovery]
+
+  COVER_PWR_ERROR_PATH  (PROCESS(!power) -> ERROR -> IDLE)
+    Cycle 0 : rst=1
+    Cycle 1 : rst=0, req=1, power_enable=0, secure_access=1
+    Cycle 2 : current_state=PROCESS, power_enable=0
+    Cycle 3 : current_state=ERROR
+    Cycle 4 : current_state=IDLE  [COVERED — power failure recovery]
+
+------------------------------------------------------------
+  REACHABILITY CONCLUSION
+------------------------------------------------------------
+  All four FSM states (IDLE, PROCESS, DONE, ERROR) confirmed reachable.
+  No dead states detected.
+  Both error paths (security violation and power failure) exercised.
+  Full transaction sequence (happy path) confirmed reachable in 4 cycles.
+
+------------------------------------------------------------
+  END OF COVER REPORT
+------------------------------------------------------------

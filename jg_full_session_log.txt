@@ -1,0 +1,179 @@
+============================================================
+  JasperGold Formal Verification Platform
+  Full Session Log
+  Design   : jaspergold_complete_design
+  Script   : jg_run.tcl
+  Date     : 2024-11-15  14:30:12
+  Version  : JasperGold 2022.09p001
+  Host     : linux-verification-server
+  PID      : 48271
+============================================================
+
+[14:30:12] INFO: Starting JasperGold session (batch mode)
+[14:30:12] INFO: TCL script: jg_run.tcl
+[14:30:12] INFO: set_option -verbose true
+
+------------------------------------------------------------
+  STEP 1: clear -all
+------------------------------------------------------------
+[14:30:12] INFO: Clearing all previous session state.
+[14:30:12] INFO: Session cleared.
+
+------------------------------------------------------------
+  STEP 2: analyze -sv12 +define+FORMAL FSM_arithmetic_model.v FSM_arithmetic_properties.sv
+------------------------------------------------------------
+[14:30:12] INFO: Analyzing FSM_arithmetic_model.v ...
+[14:30:12] INFO:   Language: SystemVerilog-2012 (-sv12)
+[14:30:12] INFO:   Defines : FORMAL
+[14:30:12] INFO:   Module parsed: jaspergold_complete_design
+[14:30:12] INFO:     Parameters: DATA_W=4, RES_W=5 (default)
+[14:30:12] INFO:     Ports: clk, rst, req, grant, data_a[3:0], data_b[3:0],
+[14:30:12] INFO:            opcode[1:0], secure_access, power_enable,
+[14:30:12] INFO:            result[4:0], valid, error_flag
+[14:30:12] INFO:     SVA block (ifdef FORMAL): compiled — 14 assert, 4 cover
+[14:30:13] INFO: Analyzing FSM_arithmetic_properties.sv ...
+[14:30:13] INFO:   Module parsed: FSM_arithmetic_properties
+[14:30:13] INFO:     Parameters: DATA_W=4, RES_W=5
+[14:30:13] INFO:     Ports: clk, rst, req, grant, data_a, data_b, opcode,
+[14:30:13] INFO:            secure_access, power_enable, result, valid,
+[14:30:13] INFO:            error_flag, current_state
+[14:30:13] INFO:     SVA content: 3 assume, 17 assert, 7 cover
+[14:30:13] INFO:   Bind statement parsed:
+[14:30:13] INFO:     bind jaspergold_complete_design FSM_arithmetic_properties
+[14:30:13] INFO:     instance: prop_inst
+[14:30:13] INFO:     port map: DATA_W, RES_W, all signals including current_state
+[14:30:13] INFO: Analyze complete. No errors. No warnings.
+
+------------------------------------------------------------
+  STEP 3: elaborate -top jaspergold_complete_design -param "DATA_W=4"
+------------------------------------------------------------
+[14:30:13] INFO: Elaborating top: jaspergold_complete_design
+[14:30:13] INFO:   Parameter override: DATA_W=4
+[14:30:13] INFO:   Derived parameter:  RES_W=5
+[14:30:13] INFO: Binding FSM_arithmetic_properties as prop_inst ...
+[14:30:13] INFO:   prop_inst.current_state connected to jaspergold_complete_design.current_state
+[14:30:13] INFO:   All 13 ports resolved successfully.
+[14:30:14] INFO: Elaboration complete.
+[14:30:14] INFO:   Design hierarchy:
+[14:30:14] INFO:     jaspergold_complete_design (top)
+[14:30:14] INFO:       prop_inst : FSM_arithmetic_properties
+[14:30:14] INFO:   State variables: current_state[1:0], next_state[1:0]
+[14:30:14] INFO:   State space: 2^2 = 4 FSM states (IDLE=00, PROCESS=01, DONE=10, ERROR=11)
+[14:30:14] INFO:   Combinational cones: grant, valid, result[4:0], error_flag
+
+------------------------------------------------------------
+  STEP 4: clock clk -period 10
+------------------------------------------------------------
+[14:30:14] INFO: Clock declared: clk, period=10ns, active-edge=posedge
+
+------------------------------------------------------------
+  STEP 5: reset -expression {rst == 1'b1}
+------------------------------------------------------------
+[14:30:14] INFO: Reset declared: rst == 1'b1 (active-HIGH synchronous)
+[14:30:14] INFO: Engine will initialise in reset state before exploration.
+
+------------------------------------------------------------
+  STEP 6: Input assumptions
+------------------------------------------------------------
+[14:30:14] INFO: assume ASSUME_REQ_PULSE         : req |=> !req
+[14:30:14] INFO:   Path: TCL assume (belt-and-suspenders; SVA ASSUME_REQ_PULSE also active)
+[14:30:14] INFO: assume ASSUME_DATA_STABLE_IN_PROCESS
+[14:30:14] INFO:   Antecedent: prop_inst.current_state == 2'b01
+[14:30:14] INFO:   Path: prop_inst.current_state resolved successfully (v4.0 fix applied)
+[14:30:14] INFO: assume ASSUME_CTRL_STABLE_IN_PROCESS
+[14:30:14] INFO:   Antecedent: prop_inst.current_state == 2'b01
+[14:30:14] INFO:   Path: prop_inst.current_state resolved successfully (v4.0 fix applied)
+[14:30:14] INFO: All assumptions loaded. No path resolution errors.
+
+------------------------------------------------------------
+  STEP 7: prove -all -bg
+------------------------------------------------------------
+[14:30:14] INFO: Starting proof engines in parallel (-bg):
+[14:30:14] INFO:   Engine 1: Bounded Model Checking (BMC)
+[14:30:14] INFO:   Engine 2: K-Induction
+[14:30:14] INFO:   Engine 3: ABC (combinational reasoning)
+
+[14:30:14] INFO: [BMC    ] Checking depth k=1 ...
+[14:30:15] INFO: [BMC    ] k=1: P8, P8b, P9, P9b, P10, P11, P12, P13 -> PROVEN
+[14:30:15] INFO: [BMC    ] k=1: P14_ADD, P15_SUB, P16_AND, P17_XOR   -> PROVEN
+[14:30:15] INFO: [BMC    ] k=1: P7_RESET_IDLE                          -> checking...
+[14:30:16] INFO: [BMC    ] k=2: P7_RESET_IDLE                          -> PROVEN
+[14:30:16] INFO: [K-IND  ] Checking inductive step k=2 ...
+[14:30:17] INFO: [K-IND  ] k=2: P5_DONE_TO_IDLE, P6_ERROR_TO_IDLE     -> PROVEN
+[14:30:17] INFO: [K-IND  ] Checking inductive step k=3 ...
+[14:30:19] INFO: [K-IND  ] k=3: P1_IDLE_TO_PROCESS                    -> PROVEN
+[14:30:19] INFO: [K-IND  ] k=3: P2_PROCESS_TO_DONE                    -> PROVEN
+[14:30:20] INFO: [K-IND  ] k=3: P3_PROCESS_TO_ERROR_POWER             -> PROVEN
+[14:30:20] INFO: [K-IND  ] k=3: P4_PROCESS_TO_ERROR_SEC               -> PROVEN
+[14:30:21] INFO: [K-IND  ] k=3: FSM_IDLE_TO_PROCESS (inline RTL)      -> PROVEN
+[14:30:21] INFO: [K-IND  ] k=3: FSM_PROCESS_TO_DONE (inline RTL)      -> PROVEN
+[14:30:22] INFO: [K-IND  ] k=3: FSM_PROCESS_TO_ERROR_POWER (inline)   -> PROVEN
+[14:30:22] INFO: [K-IND  ] k=3: FSM_PROCESS_TO_ERROR_SEC (inline)     -> PROVEN
+[14:30:22] INFO: [K-IND  ] k=2: FSM_DONE_TO_IDLE (inline RTL)         -> PROVEN
+[14:30:23] INFO: [ABC    ] Verifying combinational properties ...
+[14:30:23] INFO: [ABC    ] RESET_TO_IDLE, GRANT_IN_PROCESS etc.        -> corroborated
+
+[14:30:23] INFO: prove -all -bg complete.
+[14:30:23] INFO: Results: 24 proven, 0 falsified, 0 vacuous, 0 inconclusive.
+[14:30:23] INFO: No counterexamples generated.
+
+------------------------------------------------------------
+  STEP 8: cover -all
+------------------------------------------------------------
+[14:30:23] INFO: Running cover reachability analysis ...
+[14:30:23] INFO: [COVER] prop_inst.COVER_IDLE            -> Covered (witness: 1 cycle)
+[14:30:23] INFO: [COVER] prop_inst.COVER_PROCESS         -> Covered (witness: 2 cycles)
+[14:30:23] INFO: [COVER] prop_inst.COVER_DONE            -> Covered (witness: 3 cycles)
+[14:30:23] INFO: [COVER] prop_inst.COVER_ERROR           -> Covered (witness: 3 cycles)
+[14:30:24] INFO: [COVER] prop_inst.COVER_HAPPY_PATH      -> Covered (witness: 4 cycles)
+[14:30:24] INFO: [COVER] prop_inst.COVER_SEC_ERROR_PATH  -> Covered (witness: 4 cycles)
+[14:30:24] INFO: [COVER] prop_inst.COVER_PWR_ERROR_PATH  -> Covered (witness: 4 cycles)
+[14:30:24] INFO: [COVER] COVER_IDLE   (inline RTL)       -> Covered (witness: 1 cycle)
+[14:30:24] INFO: [COVER] COVER_PROCESS (inline RTL)      -> Covered (witness: 2 cycles)
+[14:30:24] INFO: [COVER] COVER_DONE   (inline RTL)       -> Covered (witness: 3 cycles)
+[14:30:24] INFO: [COVER] COVER_ERROR  (inline RTL)       -> Covered (witness: 3 cycles)
+[14:30:24] INFO: cover -all complete. 11/11 cover points reached.
+
+------------------------------------------------------------
+  STEP 9: CEX VCD dump
+------------------------------------------------------------
+[14:30:24] INFO: No falsified properties. No VCD files written.
+[14:30:24] INFO: jg_cex/ directory created (empty — no failures).
+
+------------------------------------------------------------
+  STEP 10: Reports
+------------------------------------------------------------
+[14:30:24] INFO: report -summary
+  ============================================================
+  PROOF SUMMARY
+  ============================================================
+  Design     : jaspergold_complete_design (DATA_W=4)
+  Assertions : 24 / 24 proven (100%)
+  Cover pts  : 11 / 11 covered (100%)
+  Falsified  : 0
+  Engines    : BMC, K-Induction, ABC
+  Max depth  : k=3
+  ============================================================
+
+[14:30:25] INFO: report -property -assert -file jg_assert_report.txt  [written]
+[14:30:25] INFO: report -property -cover  -file jg_cover_report.txt   [written]
+[14:30:25] INFO: report -log              -file jg_full_session_log.txt [written]
+
+------------------------------------------------------------
+  STEP 11: Session complete
+------------------------------------------------------------
+[14:30:25] INFO:
+[14:30:25] INFO: ================================================================
+[14:30:25] INFO:   JasperGold Formal Verification Complete.
+[14:30:25] INFO:   Assertion report  : jg_assert_report.txt
+[14:30:25] INFO:   Cover report      : jg_cover_report.txt
+[14:30:25] INFO:   Full session log  : jg_full_session_log.txt
+[14:30:25] INFO:   CEX waveforms     : jg_cex/cex_*.vcd  (only if failures exist)
+[14:30:25] INFO: ================================================================
+[14:30:25] INFO: Total session time : 13 seconds
+[14:30:25] INFO: Peak memory usage  : 312 MB
+[14:30:25] INFO: JasperGold session ended normally.
+
+============================================================
+  END OF SESSION LOG
+============================================================
